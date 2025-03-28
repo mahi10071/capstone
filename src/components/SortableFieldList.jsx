@@ -3,8 +3,10 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSensors, useSensor, PointerSensor } from '@dnd-kit/core';
 import DraggableField from './DraggableField';
+import { Field, ErrorMessage } from 'formik';
 
-const SortableFieldList = ({ fields, onFieldsChange }) => {
+const SortableFieldList = ({ fields, onFieldsChange, errors, 
+  touched }) => {
   // Set up sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -29,8 +31,70 @@ const SortableFieldList = ({ fields, onFieldsChange }) => {
       onFieldsChange(newItems);
     }
   };
+  const handleLabelChange = (id, newLabel) => {
+    onFieldsChange(fields.map(field =>
+      field.id === id ? { ...field, label: newLabel } : field
+    ));
+  };
+  const renderField = (field) => {
+    switch (field.type) {
+      case 'text':
+      case 'email':
+        return (
+          <div key={field.id} className="mb-4">
+            <label htmlFor={field.id} className="block mb-2">
+              {field.label}
+            </label>
+            <Field
+              type={field.type}
+              id={field.id}
+              name={field.id.replace('-field', '')}
+              className={`w-full px-3 py-2 border rounded ${
+                touched[field.id.replace('-field', '')] && 
+                errors[field.id.replace('-field', '')] 
+                  ? 'border-red-500' 
+                  : 'border-gray-300'
+              }`}
+            />
+            <ErrorMessage 
+              name={field.id.replace('-field', '')} 
+              component="div" 
+              className="text-red-500 text-sm mt-1" 
+            />
+          </div>
+        );
+      
+      case 'radio':
+        return (
+          <div key={field.id} className="mb-4">
+            <label className="block mb-2">{field.label}</label>
+            {field.options.map((option) => (
+              <label key={option} className="inline-flex items-center mr-4">
+                <Field
+                  type="radio"
+                  name={field.id.replace('-field', '')}
+                  value={option}
+                  className="form-radio"
+                />
+                <span className="ml-2">{option}</span>
+              </label>
+            ))}
+            <ErrorMessage 
+              name={field.id.replace('-field', '')} 
+              component="div" 
+              className="text-red-500 text-sm mt-1" 
+            />
+          </div>
+        );
+      
+      // Add more field type renderers as needed
+      default:
+        return null;
+    }
+  };
 
   return (
+    
     <DndContext 
       collisionDetection={closestCenter} 
       sensors={sensors} 
@@ -46,7 +110,7 @@ const SortableFieldList = ({ fields, onFieldsChange }) => {
           </p>
         ) : (
           fields.map((field) => (
-            <DraggableField key={field.id} field={field} />
+            <DraggableField key={field.id} field={field}  onLabelChange={handleLabelChange}/>
           ))
         )}
       </SortableContext>

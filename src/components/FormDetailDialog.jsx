@@ -1,31 +1,34 @@
-import { Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    TextField,
-    Button, } from '@mui/material';
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Button,
+} from "@mui/material";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
  
-const FormDetailDialog = ({open, setOpen}) => {
-    const [formName, setFormName] = useState("");
-    const [description, setDescription] = useState("");
-    const navigate = useNavigate();
+const FormDetailDialog = ({ open, setOpen }) => {
+  const [formName, setFormName] = useState("");
+  const [description, setDescription] = useState("");
+  const navigate = useNavigate();
+ 
+  const handleClose = () => {
+    setOpen(false);
+  };
+ 
+  const handleOk = () => {
+    navigate("/buildform", {
+      state: { formName, description },
+    });
+    setOpen(false);
+  };
  
  
-     const handleClose = () => {
-        setOpen(false);
-      };
-   
-      const handleOk = () => {
-        navigate("/buildform", {
-          state: { formName, description },
-        });
-        setOpen(false);
-      };
   return (
     <div>
-       <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Create Custom Form</DialogTitle>
         <DialogContent>
           <TextField
@@ -58,7 +61,7 @@ const FormDetailDialog = ({open, setOpen}) => {
         </DialogActions>
       </Dialog>
     </div>
-  )
-}
+  );
+};
  
-export default FormDetailDialog
+export default FormDetailDialog;

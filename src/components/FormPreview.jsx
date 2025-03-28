@@ -1,6 +1,9 @@
 import React from 'react';
+import FormHeader from './FormHeader';
+import SortableFieldList from './SortableFieldList';
 
-const FormPreview = ({ formTitle, formDescription, onDrop, children }) => {
+
+const FormPreview = ({ formTitle, formDescription, onDrop, children, currentPage, formPages, setFieldsForPage }) => {
   return (
     <div 
       className="flex-1 border rounded-lg"
@@ -16,21 +19,33 @@ const FormPreview = ({ formTitle, formDescription, onDrop, children }) => {
       }}
     >
       <div className="p-6 bg-purple-200 rounded-t-lg flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-bold">{formTitle}</h2>
-          <p>{formDescription}</p>
-        </div>
+      <FormHeader />
         <div className="text-red-500 font-bold">incedo</div>
       </div>
+      <h2 className="text-xl font-bold mt-4">Page {currentPage + 1}</h2>
+
       
       <div className="p-6">
         <form>
           {children}
+          {/* <SortableFieldList 
+            fields={formPages[currentPage] || []} 
+            setFields={setFieldsForPage} 
+            onRemoveField={removeField} 
+          /> */}
+          {/* <SortableFieldList 
+            fields={formPages[currentPage] || []} 
+            setFields={setFieldsForPage} 
+            // onRemoveField={removeField}
+            onFieldsChange={setFormFields}
+            errors={errors}
+            touched={touched} 
+          />  */}
           
           {/* Submit button */}
-          <button type="submit" className="bg-purple-400 text-black px-6 py-2 rounded mt-4 w-full">
+          {/* <button type="submit" className="bg-purple-400 text-black px-6 py-2 rounded mt-4 w-full">
             Submit
-          </button>
+          </button> */}
         </form>
       </div>
     </div>
@@ -38,3 +53,48 @@ const FormPreview = ({ formTitle, formDescription, onDrop, children }) => {
 };
 
 export default FormPreview;
+
+// import React from 'react';
+// import SortableFieldList from './SortableFieldList';
+
+// const FormPreview = ({ formTitle, formDescription, onDrop, children, currentPage, formPages, removeField, setFieldsForPage }) => {
+//   return (
+//     <div 
+//       className="flex-1 border rounded-lg"
+//       onDragOver={(e) => e.preventDefault()}
+//       onDrop={(e) => {
+//         e.preventDefault();
+//         try {
+//           const field = JSON.parse(e.dataTransfer.getData("field"));
+//           onDrop(field);
+//         } catch (error) {
+//           console.error("Error parsing dragged field:", error);
+//         }
+//       }}
+//     >
+      
+//       <div className="p-6 bg-purple-200 rounded-t-lg flex justify-between items-center">
+//         <div>
+//           <h2 className="text-xl font-bold">{formTitle}</h2>
+//           <p>{formDescription}</p>
+//         </div>
+//         <div className="text-red-500 font-bold">incedo</div>
+//       </div>
+//       <h2 className="text-xl font-bold mt-4">Page {currentPage + 1}</h2>
+      
+//       <div className="p-6">
+//         <form>
+//         <SortableFieldList 
+//             fields={formPages[currentPage] || []} 
+//             setFields={setFieldsForPage} 
+           
+//           />
+          
+          
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default FormPreview;

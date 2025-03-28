@@ -23,10 +23,10 @@ import ScreenRouter from "./config/Routes";
 const App = () => {
   return (
     <BrowserRouter> {/* Wrap everything inside BrowserRouter */}
-      <div className="p-4 bg-gray-50 min-h-screen">
+      <div >
         {/* Header Section */}
         {/* <FormBuilder /> */}
-        <main className="text-center mt-20 px-10">
+        <main >
           <ScreenRouter />
         </main>
       </div>
