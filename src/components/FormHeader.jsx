@@ -4,14 +4,14 @@ import { useLocation } from "react-router-dom";
  
 const FormHeader = () => {
   const location = useLocation();
-  const { formName: initialFormName, description: initialDescription } =
+  const { title: initialFormName, description: initialDescription } =
     location.state || {};
-  const [formName, setFormName] = useState(initialFormName || "Default Form");
+  const [title, setFormName] = useState(initialFormName || "Default Form");
   const [description, setDescription] = useState(
     initialDescription || "This is the default description."
   );
  
-  console.log(formName);
+  console.log(title);
   console.log(description);
  
   const [isEditingFormName, setIsEditingFormName] = useState(false);
@@ -35,12 +35,12 @@ const FormHeader = () => {
               className="cursor-pointer"
               onClick={() => setIsEditingFormName(true)}
             >
-              {formName}
+              {title}
             </span>
           ) : (
             <TextField
               autoFocus
-              value={formName}
+              value={title}
               onBlur={handleSaveFormName}
               onChange={(e) => setFormName(e.target.value)}
               onKeyDown={(e) => {

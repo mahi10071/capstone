@@ -6,7 +6,7 @@ import DraggableField from './DraggableField';
 import { Field, ErrorMessage } from 'formik';
 
 const SortableFieldList = ({ fields, onFieldsChange, errors, 
-  touched }) => {
+  touched, onDelete }) => {
   // Set up sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -110,7 +110,9 @@ const SortableFieldList = ({ fields, onFieldsChange, errors,
           </p>
         ) : (
           fields.map((field) => (
-            <DraggableField key={field.id} field={field}  onLabelChange={handleLabelChange}/>
+            <DraggableField key={field.id} field={field}  onLabelChange={handleLabelChange}  onDelete={onDelete}
+            // onDelete={onDelete}
+            />
           ))
         )}
       </SortableContext>

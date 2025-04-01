@@ -31,7 +31,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import FieldRenderer from './FieldRenderer';
  
-const DraggableField = ({ field, onLabelChange }) => {
+const DraggableField = ({ field, onLabelChange, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id });
  
   const style = {
@@ -72,7 +72,7 @@ const DraggableField = ({ field, onLabelChange }) => {
         ) : (
           <span className="font-medium">{label}</span>
         )}
-        <button
+        {/* <button
           className="ml-2 text-blue-500 hover:underline text-sm"
           onClick={(e) => {
             e.stopPropagation();
@@ -81,7 +81,30 @@ const DraggableField = ({ field, onLabelChange }) => {
           }}
         >
           Edit
-        </button>
+        </button> */}
+        <div className="flex space-x-2">
+          <button
+            className="text-blue-500 hover:underline text-sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsEditing(true);
+            }}
+          >
+            Edit
+          </button>
+          
+          <button
+    className="text-red-500 hover:underline text-sm"
+    onClick={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onDelete(field.id);
+    }}
+  >
+    Delete
+  </button>
+        </div>
       </div>
       <FieldRenderer field={{ ...field, label }} />
     </div>
