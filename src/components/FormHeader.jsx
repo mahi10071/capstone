@@ -11,8 +11,8 @@ const FormHeader = () => {
     initialDescription || "This is the default description."
   );
  
-  console.log(title);
-  console.log(description);
+  // console.log(title);
+  // console.log(description);
  
   const [isEditingFormName, setIsEditingFormName] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
