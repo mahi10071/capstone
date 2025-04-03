@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Formik, Form } from 'formik';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import FormPreview from './FormPreview';
 import SortableFieldList from './SortableFieldList';
 import { initialFields, dataFields, customFields } from '../data/fielddata';
-import { validationSchema , initialValues } from '../validations/formvalidation'; 
-import * as Yup from 'yup';
 
 const FormBuilder = () => {
   const [formTitle, setFormTitle] = useState("Demo Form");
   const [formDescription, setFormDescription] = useState("This is form description");
-  const [formFields, setFormFields] = useState([
-    { id: 'name', type: 'text', label: 'Name' },
-    { id: 'email', type: 'email', label: 'Email' },
-    { id: 'gender', type: 'radio', label: 'Gender', options: ['Male', 'Female'] }
-  ]);
   const [formPages, setFormPages] = useState([
     [{ id: 'name', type: 'text', label: 'Name' },
     { id: 'email', type: 'email', label: 'Email' }],
   ]);
+  // const [formFields, setFormFields] = useState([
+  //    { id: 'name-field', type: 'text', label: 'Name' },
+  //    { id: 'email-field', type: 'email', label: 'Email' },
+  //    { id: 'gender-field', type: 'radio', label: 'Gender', options: ['Male', 'Female'] }
+  //  ]);
   const [companyLogo, setCompanyLogo] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [pendingPageAdd, setPendingPageAdd] = useState(false);
@@ -34,9 +31,13 @@ const FormBuilder = () => {
 
   const onDrop = (field) => {
     const newField = { ...field };
+    // console.log("🔽 Dropped field:", newField); 
+
     setFormPages((prevPages) => {
       const updatedPages = [...prevPages];
       updatedPages[currentPage] = [...updatedPages[currentPage], newField];
+      // console.log("✅ Updated Pages:", updatedPages); 
+
       return updatedPages;
     });
   };
@@ -48,14 +49,18 @@ const FormBuilder = () => {
       updatedPages[currentPage] = updatedPages[currentPage].filter(field => field.id !== fieldId);
       return updatedPages;
     });
+    
   };
 
   const setFieldsForPage = (updatedFields) => {
+    console.log("Updating fields:", updatedFields);
+
     setFormPages((prevPages) => {
       const newPages = [...prevPages];
       newPages[currentPage] = updatedFields;
       return newPages;
     });
+
   };
 
   const addPage = () => {
@@ -87,59 +92,50 @@ const FormBuilder = () => {
     }
   };
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Form submitted with values:", values); 
-    setSubmitting(false);
-  };
-
-  const getFormValues = () => {
-    const allFieldIds = new Set();
+  const handleSubmit = (event) => {
+    event.preventDefault();
     
+    const submittedValues = {};
     formPages.forEach(page => {
       page.forEach(field => {
-        allFieldIds.add(field.id);
+        submittedValues[field.id] = field.value || "";
       });
     });
-    const formValues = { ...initialValues };
+  
+    console.log("Form submitted with values:", submittedValues);
+  };
+
+  const handleFieldsChange = (updatedFields) => {
+    // console.log("Updating fields:", updatedFields); // Debugging
+    setFieldsForPage(updatedFields);
+    setFormPages((prevPages) => {
+      const newPages = [...prevPages];
+      const currentPageFields = [...newPages[currentPage]];
     
-    allFieldIds.forEach(fieldId => {
-      if (!(fieldId in formValues)) {
-        const fieldType = getFieldType(fieldId);
-        
-        if (fieldType === 'checkbox') {
-          formValues[fieldId] = false;
-        } else if (fieldType === 'file') {
-          formValues[fieldId] = null;
-        } else {
-          formValues[fieldId] = '';
-        }
-      }
+      // Find the field and update its value
+      const updatedFields = currentPageFields.map(field => 
+        field.id === fieldId ? { ...field, value } : field
+      );
+      newPages[currentPage] = [...updatedFields];
+      return newPages;
     });
-    return formValues;
   };
   
-  const getFieldType = (fieldId) => {
-    for (const page of formPages) {
-      for (const field of page) {
-        if (field.id === fieldId) {
-          return field.type;
-        }
-      }
-    }
-    return 'text'; 
+  // console.log("Passing handleFieldChange to SortableFieldList:", handleFieldsChange);
+  const handleFieldValueChange = (fieldId, value) => {
+    setFormPages((prevPages) => {
+      const updatedPages = [...prevPages];
+      updatedPages[currentPage] = updatedPages[currentPage].map(field => 
+        field.id === fieldId ? { ...field, value } : field
+      );
+      return updatedPages;
+    });
   };
-  
+
+ 
   return (
 
-    <Formik
-    initialValues={getFormValues()}
-    validationSchema={validationSchema}
-    onSubmit={handleSubmit}
-    enableReinitialize={true} 
-  >
-
-      {({ isSubmitting, errors, touched, values }) => (
-        <Form className="flex flex-col min-h-screen bg-white">
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-screen bg-white">
           <Header formTitle={formTitle} />
 
          
@@ -153,6 +149,8 @@ const FormBuilder = () => {
               />
             </div>
             <main className="w-3/4">
+            {/* console.log("Passing handleFieldChange to FormPreview:", setFieldsForPage); */}
+
               <FormPreview
                 formTitle={formTitle}
                 formDescription={formDescription}
@@ -161,11 +159,22 @@ const FormBuilder = () => {
                 onDrop={onDrop}
                 setFieldsForPage={setFieldsForPage}
                 onDelete = {handleDeleteField}
-                formikValues={values} 
-                formikErrors={errors} 
-                formikTouched={touched}
-                
-              />
+                handleFieldsChange={setFieldsForPage} 
+                onFieldValueChange={handleFieldValueChange}  // Add this prop
+ 
+                >
+
+                <SortableFieldList 
+                fields={formPages[currentPage] || []} 
+                onFieldsChange={setFieldsForPage}  
+                // onDelete={(id) => setFields(fields.filter(field => field.id !== id))}
+                onDelete={handleDeleteField}
+                onFieldValueChange={handleFieldValueChange}  // Add this prop
+
+
+                />
+
+                </FormPreview>
 
 
               <div className="flex justify-between mt-4">
@@ -191,7 +200,7 @@ const FormBuilder = () => {
               
               <button
                 type="submit"
-                disabled={isSubmitting}
+                // disabled={isSubmitting}
                 className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
               >
                 Submit Form
@@ -200,18 +209,18 @@ const FormBuilder = () => {
                <div className="mt-4 p-4 bg-gray-100 rounded">
                 <h3 className="font-bold">Form State (Debug):</h3>
                 <div>
-                  <pre className="text-xs mt-2">{JSON.stringify({values, errors, touched}, null, 2)}</pre>
+                  <pre className="text-xs mt-2">{JSON.stringify({formPages}, null, 2)}</pre>
                 </div>
               </div>
               
             </main>
           </div>
         
-        </Form>
+        </form>
       )}
-    </Formik>
-  );
-};
+    
+  
+
 
 export default FormBuilder;
 

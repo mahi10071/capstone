@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import FieldRenderer from './FieldRenderer';
  
 const DraggableField = ({ field, onLabelChange, onDelete }) => {
+  
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -26,8 +27,20 @@ const DraggableField = ({ field, onLabelChange, onDelete }) => {
   const toggleRequired = () => {
     const updatedRequired = !isRequired;
     setIsRequired(updatedRequired);
+    if (typeof onUpdateField === 'function') {
     onUpdateField(field.id, { ...field, required: updatedRequired });
-  };
+  } else {
+    // If onUpdateField doesn't exist, use onLabelChange as a fallback
+    // or add the onUpdateField prop to this component
+    onLabelChange(field.id, label, updatedRequired);
+  }
+};
+
+const handleFieldChange = (fieldId, value) => {
+  // This needs to be implemented or passed as a prop
+  console.log("Field value changed:", fieldId, value);
+  // If you have a prop for updating field values, use it here
+};
 
   return (
     <div
@@ -76,7 +89,7 @@ const DraggableField = ({ field, onLabelChange, onDelete }) => {
   </button>
         </div>
       </div>
-      <FieldRenderer field={{ ...field, label, required: isRequired }} />
+      <FieldRenderer field={{ field, label, required: isRequired }} handleFieldChange={handleFieldChange}/>
       <div className="flex justify-end mt-2">
         <label className="flex items-center text-sm">
           <input

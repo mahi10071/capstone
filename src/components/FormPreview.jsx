@@ -1,19 +1,16 @@
 import React from 'react';
 import FormHeader from './FormHeader';
 import SortableFieldList from './SortableFieldList';
-import { Field, ErrorMessage } from 'formik';
   
 const FormPreview = ({ 
   formTitle, 
   formDescription, 
   formPages, 
   currentPage, 
+  children,
   onDrop, 
   setFieldsForPage, 
-  onDelete,
-  formikValues,
-  formikErrors,
-  formikTouched
+  onDelete
 }) => {
 
   return (
@@ -40,9 +37,12 @@ const FormPreview = ({
 </div>
       
       <div className="p-6">
+      {/* console.log("Passing onFieldsChange to SortableFieldList:", setFieldsForPage); */}
+
           <SortableFieldList 
             fields={formPages[currentPage] || []}
-            setFields = {setFieldsForPage}
+            onFieldsChange= {setFieldsForPage}
+            // setFields = {setFieldsForPage}
             onDelete={onDelete}            
           />
       </div>

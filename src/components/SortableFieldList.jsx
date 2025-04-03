@@ -3,10 +3,13 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSensors, useSensor, PointerSensor } from '@dnd-kit/core';
 import DraggableField from './DraggableField';
-import { Field, ErrorMessage } from 'formik';
 
-const SortableFieldList = ({ fields, onFieldsChange, errors, 
-  touched, onDelete }) => {
+
+const SortableFieldList = ({ fields, onFieldsChange,
+  onDelete, onFieldValueChange, errors }) => {
+    // console.log("📥 onFieldsChange received in SortableFieldList:", onFieldsChange);
+    // console.log("📥 Fields received in SortableFieldList:", fields); // Debugging
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -14,79 +17,48 @@ const SortableFieldList = ({ fields, onFieldsChange, errors,
       },
     })
   );
-  console.log(fields);
+  // console.log(fields);
   const onDragEnd = (event) => {
     const { active, over } = event;
-    
-    if (active.id !== over.id) {
+    console.log("🔥 Drag Event:", event); // Debugging
+
+    // if (active.id !== over.id) {
+      if (!over || active.id === over.id) return;
+
       const oldIndex = fields.findIndex(item => item.id === active.id);
       const newIndex = fields.findIndex(item => item.id === over.id);
-      
+      console.log("📌 Old Index:", oldIndex, "New Index:", newIndex); // Debugging
+
+      if (oldIndex === -1 || newIndex === -1) return;
+
       const newItems = [...fields];
       const [movedItem] = newItems.splice(oldIndex, 1);
       newItems.splice(newIndex, 0, movedItem);
-      
+      console.log("🔄 Fields after reordering:", newItems); // Debugging
+
       onFieldsChange(newItems);
+
+      // onFieldsChange(newItems);
+      // if (typeof onFieldsChange === "function") {
+      //   console.log("Calling onFieldsChange with:", newItems);
+
+      //   onFieldsChange(newItems);  // Ensure `onFieldsChange` is a function
+      // } else {
+      //   console.error("onFieldsChange is not a function", onFieldsChange);
+      // }
     }
-  };
+  
   const handleLabelChange = (id, newLabel) => {
     onFieldsChange(fields.map(field =>
       field.id === id ? { ...field, label: newLabel } : field
     ));
   };
-  const renderField = (field) => {
-    switch (field.type) {
-      case 'text':
-      case 'email':
-        return (
-          <div key={field.id} className="mb-4">
-            <label htmlFor={field.id} className="block mb-2">
-              {field.label}
-            </label>
-            <Field
-              type={field.type}
-              id={field.id}
-              name={field.id.replace('-field', '')}
-              className={`w-full px-3 py-2 border rounded ${
-                touched[field.id.replace('-field', '')] && 
-                errors[field.id.replace('-field', '')] 
-                  ? 'border-red-500' 
-                  : 'border-gray-300'
-              }`}
-            />
-            <ErrorMessage 
-              name={field.id.replace('-field', '')} 
-              component="div" 
-              className="text-red-500 text-sm mt-1" 
-            />
-          </div>
-        );
-      
-      case 'radio':
-        return (
-          <div key={field.id} className="mb-4">
-            <label className="block mb-2">{field.label}</label>
-            {field.options.map((option) => (
-              <label key={option} className="inline-flex items-center mr-4">
-                <Field
-                  type="radio"
-                  name={field.id.replace('-field', '')}
-                  value={option}
-                  className="form-radio"
-                />
-                <span className="ml-2">{option}</span>
-              </label>
-            ))}
-            <ErrorMessage 
-              name={field.id.replace('-field', '')} 
-              component="div" 
-              className="text-red-500 text-sm mt-1" 
-            />
-          </div>
-        );
-      
-      default:
-        return null;
+  
+  const handleFieldValueChange = (id, value) => {
+    if (typeof onFieldValueChange === 'function') {
+      onFieldValueChange(id, value);
+    } else {
+      console.warn("onFieldValueChange not provided to SortableFieldList");
     }
   };
 
@@ -107,7 +79,9 @@ const SortableFieldList = ({ fields, onFieldsChange, errors,
           </p>
         ) : (
           fields.map((field) => (
-            <DraggableField key={field.id} field={field}  onLabelChange={handleLabelChange}  onDelete={onDelete}
+            <DraggableField key={field.id} field={field}  onLabelChange={handleLabelChange}  onDelete={onDelete} 
+            handleFieldChange={handleFieldValueChange} // Pass the handler function
+
             />
           ))
         )}
